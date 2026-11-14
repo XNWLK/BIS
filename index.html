@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Forever Warlock Pre-Raid BiS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: the game's character window — a framed panel with the 8 left slots, the 8 right slots and the weapon row
+   around a centre column that holds the build, its sim DPS and the character-sheet stats. One dark look, on purpose. */
+:root {
+  color-scheme: dark;
+  --bg: #0b0a0e;
+  --frame: #1a161d;
+  --frame-2: #231d27;
+  --line: #3a2f2a;
+  --gold: #e3bf6a;
+  --gold-dim: #9c8556;
+  --text: #ece6da;
+  --muted: #a39a8c;
+  --fel: #9d84f0;            /* Warlock purple, for the active build */
+  --same: #8fdc8a;           /* every build wears the same item */
+  --odd: #e0524f;            /* this build differs from the most common pick */
+  --q0: #9d9d9d; --q1: #ffffff; --q2: #1eff00; --q3: #0070dd; --q4: #a335ee; --q5: #ff8000;
+  --display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --game: "Arial Narrow", Arial, "Helvetica Neue", sans-serif;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 14px/1.45 var(--body);
+  background-image: radial-gradient(1200px 500px at 50% -10%, #241a2e 0%, transparent 70%); }
+.wrap { max-width: 1060px; margin: 0 auto; padding-block: 28px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: grid; gap: 6px; margin-bottom: 18px; }
+.eyebrow { font: 600 11px var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dim); }
+h1 { font: 700 clamp(26px, 4.5vw, 40px)/1.1 var(--display); color: var(--gold); margin: 0; text-wrap: balance;
+  text-shadow: 0 2px 0 #000, 0 0 24px rgba(227, 191, 106, .18); }
+.lede { color: var(--muted); max-width: 66ch; margin: 0; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; }
+.tab { font: 600 13px var(--body); color: var(--muted); background: var(--frame); border: 1px solid var(--line); border-bottom-width: 2px;
+  padding: 8px 14px; border-radius: 6px 6px 3px 3px; cursor: pointer; }
+.tab:hover { color: var(--text); border-color: var(--gold-dim); }
+.tab[aria-selected="true"] { color: var(--gold); border-color: var(--gold); background: var(--frame-2); }
+.tab:focus-visible, .slot:focus-visible, a:focus-visible { outline: 2px solid var(--fel); outline-offset: 2px; }
+
+/* the character window */
+.sheet { margin-top: 10px; border: 2px solid #4b3d30; border-radius: 10px; padding: 18px;
+  background: linear-gradient(180deg, var(--frame-2), var(--frame) 40%), var(--frame);
+  box-shadow: inset 0 0 0 1px #000, inset 0 0 40px rgba(0, 0, 0, .6), 0 10px 30px rgba(0, 0, 0, .5); }
+.doll { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.col { display: grid; gap: 8px; min-width: 0; }
+.slot { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 3px; border-radius: 6px; text-decoration: none; color: inherit; }
+.slot:hover { background: rgba(255, 255, 255, .04); }
+.col.right .slot { flex-direction: row-reverse; text-align: right; }
+.ico { width: 46px; height: 46px; flex: none; border-radius: 5px; border: 2px solid #555; background-color: #111; background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1px #000, 0 0 0 1px #000; }
+.ico.q2 { border-color: var(--q2); } .ico.q3 { border-color: var(--q3); } .ico.q4 { border-color: var(--q4); } .ico.q5 { border-color: var(--q5); }
+.ico.q3, .ico.q4, .ico.q5 { box-shadow: inset 0 0 0 1px #000, 0 0 10px -2px currentColor; }
+.ico.q3 { color: var(--q3); } .ico.q4 { color: var(--q4); } .ico.q5 { color: var(--q5); }
+.ico.empty { border: 1px dashed #3d3530; background: rgba(0, 0, 0, .35); }
+.txt { min-width: 0; display: grid; }
+.nm { font: 500 14px/1.25 var(--game); text-shadow: 1px 1px 0 #000; overflow-wrap: anywhere; }
+.nm.q2 { color: var(--q2); } .nm.q3 { color: #2a8cff; } .nm.q4 { color: #b764ff; } .nm.q5 { color: var(--q5); } .nm.q1 { color: var(--q1); }
+.lbl { font: 600 10.5px var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--gold-dim); }
+.src { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.slot.none .lbl { color: #5c534a; }
+
+.mid { display: grid; gap: 14px; align-content: start; text-align: center; padding: 6px 4px; min-width: 0; }
+.mid h2 { font: 700 22px/1.15 var(--display); color: var(--text); margin: 0; text-wrap: balance; }
+.who { color: var(--muted); font-size: 13px; }
+.who b { color: var(--text); font-weight: 600; }
+.dps { display: grid; gap: 2px; justify-items: center; padding: 12px 8px; border-radius: 8px; background: rgba(0, 0, 0, .35); border: 1px solid var(--line); }
+.dps .n { font: 700 34px/1 var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
+.dps .u { font: 600 11px var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-dim); }
+.dps .pm { font-size: 12px; color: var(--muted); }
+.stats { display: grid; grid-template-columns: 1fr auto; gap: 3px 14px; text-align: left; padding: 10px 12px; border-radius: 8px;
+  background: rgba(0, 0, 0, .25); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.stats h3 { grid-column: 1 / -1; margin: 0 0 4px; font: 600 10.5px var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-dim); }
+.stats dt { color: var(--gold); } .stats dd { margin: 0; text-align: right; color: var(--text); }
+.links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.btn { font: 600 12.5px var(--body); color: var(--text); text-decoration: none; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--gold-dim);
+  background: linear-gradient(#2c2219, #1c1611); }
+.btn:hover { border-color: var(--gold); color: var(--gold); }
+.setline { font-size: 12.5px; color: var(--muted); }
+
+.weap { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 26px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.weap .slot { flex-direction: column; text-align: center; width: 170px; }
+
+/* all builds side by side */
+.cmpwrap { overflow-x: auto; margin-top: 10px; border: 2px solid #4b3d30; border-radius: 10px; background: var(--frame); }
+table.cmp { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 820px; font-size: 13px; }
+table.cmp th, table.cmp td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+table.cmp thead th { font: 700 13px var(--display); color: var(--gold); background: var(--frame-2); position: sticky; top: 0; }
+table.cmp tbody th { font: 600 10.5px var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--gold-dim); white-space: nowrap; }
+.cell { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cell .ico { width: 30px; height: 30px; border-width: 1px; }
+.cell .nm { font-size: 13px; }
+tr.dpsrow td { font: 700 16px var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
+
+/* same item for every build: the row in light green; a build that differs from the most common pick: its cell in red */
+table.cmp tr.same > * { box-shadow: inset 0 2px 0 var(--same), inset 0 -2px 0 var(--same); }
+table.cmp tr.same > :first-child { box-shadow: inset 2px 0 0 var(--same), inset 0 2px 0 var(--same), inset 0 -2px 0 var(--same); }
+table.cmp tr.same > :last-child { box-shadow: inset -2px 0 0 var(--same), inset 0 2px 0 var(--same), inset 0 -2px 0 var(--same); }
+table.cmp td.odd { box-shadow: inset 0 0 0 2px var(--odd); background: rgba(224, 82, 79, .07); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 18px; height: 12px; border-radius: 2px; display: inline-block; }
+.legend i.same { box-shadow: inset 0 0 0 2px var(--same); } .legend i.odd { box-shadow: inset 0 0 0 2px var(--odd); }
+.ench { font: 500 12px/1.25 var(--game); color: var(--q2); text-shadow: 1px 1px 0 #000; overflow-wrap: anywhere; }
+table.cmp tbody th .ench { display: block; font: 500 11.5px/1.25 var(--game); letter-spacing: 0; text-transform: none; margin-top: 2px; white-space: normal; }
+/* the Enchants review tab */
+.rv { margin-top: 10px; border: 2px solid #4b3d30; border-radius: 10px; padding: 16px; background: var(--frame); display: grid; gap: 14px; }
+.rvtop { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; color: var(--muted); font-size: 13px; }
+.rvtop b { color: var(--text); }
+.rvst { margin-left: auto; font-size: 12.5px; } .rvst.err { color: var(--odd); }
+.rvslot h3 { font: 700 15px var(--display); color: var(--gold); margin: 6px 0 6px; }
+.rvrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--line); background: rgba(0, 0, 0, .22); margin-bottom: 6px; }
+.rvrow.on { border-color: var(--q2); }
+.rvn { font: 500 14px var(--game); color: var(--text); } .rvn .tag { font: 600 10.5px var(--body); color: var(--q2); border: 1px solid var(--q2); border-radius: 4px; padding: 0 5px; margin-left: 6px; vertical-align: 1px; }
+.rvt { font-size: 12px; color: var(--muted); grid-column: 1; }
+.rvbtns { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; grid-row: span 2; }
+.rvbtns button { font: 600 12px var(--body); color: var(--muted); background: var(--frame-2); border: 1px solid var(--line); border-radius: 5px; padding: 4px 8px; cursor: pointer; min-width: 30px; }
+.rvbtns button[aria-pressed="true"] { color: #111; background: var(--gold); border-color: var(--gold); }
+.rvbtns button.guess[aria-pressed="true"] { background: transparent; color: var(--gold); border: 1px dashed var(--gold); }   /* a guess, not reviewed yet */
+.rvbtns button:disabled { cursor: default; opacity: .75; }
+@media (max-width: 640px) { .rvrow { grid-template-columns: minmax(0, 1fr); } .rvbtns { grid-row: auto; justify-content: flex-start; } }
+.notes { margin-top: 18px; color: var(--muted); font-size: 12.5px; max-width: 80ch; display: grid; gap: 6px; }
+.notes a { color: var(--gold); }
+
+/* the game's item tooltip */
+#tip { position: fixed; z-index: 50; pointer-events: none; max-width: min(330px, calc(100vw - 16px)); }
+.tipg { background: rgba(6, 8, 24, .96); border: 2px solid #c8c8cc; border-radius: 5px; box-shadow: 0 3px 14px rgba(0, 0, 0, .7);
+  padding: 7px 10px 8px; color: #fff; font: 13px/1.38 var(--game); text-shadow: 1px 1px 0 #000; min-width: 210px; }
+.tipg table { border-collapse: collapse; width: 100%; margin: 0; font: inherit; color: inherit; }
+.tipg td, .tipg th { padding: 0; vertical-align: top; text-align: left; font: inherit; color: inherit; border: 0; background: none; }
+.tipg th { text-align: right; padding-left: 18px; font-weight: normal; }
+.tipg b { display: inline-block; font-size: 16px; line-height: 1.3; font-weight: normal; margin-bottom: 1px; }
+.tipg .q { color: #ffd100; } .tipg .q0 { color: #9d9d9d; } .tipg .q1 { color: #fff; } .tipg .q2 { color: #1eff00; }
+.tipg .q3 { color: #0070dd; } .tipg .q4 { color: #a335ee; } .tipg .q5 { color: #ff8000; } .tipg .q6, .tipg .q7 { color: #e6cc80; }
+.tipg .indent { padding-left: 10px; }
+.tipx { margin-top: 4px; padding: 5px 9px; border-radius: 5px; background: #17131a; border: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+@media (max-width: 760px) {
+  .doll { grid-template-columns: minmax(0, 1fr); }
+  .mid { order: -1; }
+  .col.right .slot { flex-direction: row; text-align: left; }
+  .weap { justify-content: flex-start; }
+  .weap .slot { flex-direction: row; text-align: left; width: 100%; }
+  .sheet { padding: 14px; }
+}
+@media (prefers-reduced-motion: no-preference) { .slot, .tab, .btn { transition: background-color .12s, border-color .12s, color .12s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">World of Warcraft Forever · Warlock · Phase 1</div>
+    <h1>Pre-Raid Best in Slot</h1>
+    <p class="lede">A realistic pre-raid set for each Warlock build: no raid drops and no long reputation grinds, chosen item by item from a full search of what drops in Phase 1. Hover or tap an item to see its tooltip.</p>
+    <nav class="tabs" role="tablist" id="tabs" aria-label="Builds"></nav>
+  </header>
+  <main id="view"></main>
+  <div class="notes" id="notes"></div>
+</div>
+<div id="tip" hidden></div>
+
+<script id="data" type="application/json">{"icons":{"cols":24,"rows":27},"builds":[{"key":"demo_pact_succ_sb","short":"Shadow Demo","name":"Demonology – Pact, Succubus out, Shadow Bolt","spec":"2/31/18","race":"Orc","talents":"https://www.wowhead.com/forever/talent-calc/warlock/v2011-0035003131020301351-0550005003_t0/0bc1cccdddddggghiiijllnnnpqqqrrrrrs2bbbbbcccccgggggjjj","dps":891.3,"err":2.9,"sheet":{"name":"500 SP / 5% hit / 10% crit / Int 148 / Spi 54 / Sta 160 / MP5 0","sp":427,"shadowSp":0,"fireSp":0,"hitPct":4,"critPct":6.3,"critIncludesAll":false,"hastePct":1,"pierce":6,"spellPen":0,"int":106,"spi":46,"sta":69,"mp5":0},"slots":{"head":22267,"neck":19426,"shoulder":19050,"back":272411,"chest":14153,"wrist":18497,"hands":13253,"waist":11662,"legs":13170,"feet":11822,"finger1":12543,"finger2":272407,"trinket1":18467,"trinket2":272438,"mainHand":13964,"offHand":11904,"ranged":13938},"ench":{"head":"Healing and Spell Damage +8","neck":"+6 Spell Power","chest":"All Stats +3","wrist":"Healing Spells +16, Damage Spells +6","hands":"Haste +1%","legs":"Healing and Spell Damage +8","feet":"Minor Speed","mainHand":"Revelation"},"sets":[]},{"key":"demo_pact_fire","short":"Fire Demo","name":"Demonology – Pact, Imp out, Fire","spec":"2/31/18","race":"Orc","talents":"https://www.wowhead.com/forever/talent-calc/warlock/v2011-0345003101020201351-0050055003_t0/0bc1bbbccccdddddggghjllnnpqqqrrrrrs2cccccfffffgggggjjj","dps":870.6,"err":1.9,"sheet":{"name":"500 SP / 5% hit / 10% crit / Int 148 / Spi 54 / Sta 160 / MP5 0","sp":417,"shadowSp":0,"fireSp":0,"hitPct":5,"critPct":6.37,"critIncludesAll":false,"hastePct":1,"pierce":6,"spellPen":0,"int":110,"spi":38,"sta":85,"mp5":0},"slots":{"head":22267,"neck":19426,"shoulder":19050,"back":272411,"chest":14153,"wrist":18497,"hands":22077,"waist":11662,"legs":13170,"feet":11822,"finger1":272407,"finger2":12543,"trinket1":18467,"trinket2":272438,"mainHand":13964,"offHand":11904,"ranged":13938},"ench":{"head":"Healing and Spell Damage +8","neck":"+6 Spell Power","chest":"All Stats +3","wrist":"Healing Spells +16, Damage Spells +6","hands":"Haste +1%","legs":"Healing and Spell Damage +8","feet":"Minor Speed","mainHand":"Revelation"},"sets":[{"name":"Deathmist Raiment","worn":1,"size":8}]},{"key":"destro_incin_succ","short":"Incinerate Pandemic","name":"Destruction – Incinerate, Succubus out","spec":"14/4/33","race":"Orc","talents":"https://www.wowhead.com/forever/talent-calc/warlock/v22530000013-0004-0050355103101351_t0/0aabbbbbcccijjj1dddd2ccccceeefffffggggghjjjkmnnnooooop","dps":865.9,"err":2.3,"sheet":{"name":"500 SP / 5% hit / 10% crit / Int 148 / Spi 54 / Sta 160 / MP5 0","sp":417,"shadowSp":0,"fireSp":0,"hitPct":5,"critPct":6.37,"critIncludesAll":false,"hastePct":1,"pierce":6,"spellPen":0,"int":110,"spi":38,"sta":85,"mp5":0},"slots":{"head":22267,"neck":19426,"shoulder":19050,"back":272411,"chest":14153,"wrist":18497,"hands":22077,"waist":11662,"legs":13170,"feet":11822,"finger1":12543,"finger2":272407,"trinket1":18467,"trinket2":272438,"mainHand":13964,"offHand":11904,"ranged":13938},"ench":{"head":"Healing and Spell Damage +8","neck":"+6 Spell Power","chest":"All Stats +3","wrist":"Healing Spells +16, Damage Spells +6","hands":"Haste +1%","legs":"Healing and Spell Damage +8","feet":"Minor Speed","mainHand":"Revelation"},"sets":[{"name":"Deathmist Raiment","worn":1,"size":8}]},{"key":"destro_incin_ds","short":"Incinerate DS","name":"Destruction – Incinerate, Succubus sacrificed","spec":"7/11/33","race":"Undead","talents":"https://www.wowhead.com/forever/talent-calc/warlock/v2052-0050203001-0050355103101351_t0/0bbbbbcc1ccccceegggj2ccccceeefffffggggghjjjkmnnnooooop","dps":842.1,"err":2.2,"sheet":{"name":"500 SP / 5% hit / 10% crit / Int 148 / Spi 54 / Sta 160 / MP5 0","sp":417,"shadowSp":0,"fireSp":0,"hitPct":5,"critPct":6.37,"critIncludesAll":false,"hastePct":1,"pierce":6,"spellPen":0,"int":110,"spi":38,"sta":85,"mp5":0},"slots":{"head":22267,"neck":19426,"shoulder":19050,"back":272411,"chest":14153,"wrist":18497,"hands":22077,"waist":11662,"legs":13170,"feet":11822,"finger1":272407,"finger2":12543,"trinket1":18467,"trinket2":272438,"mainHand":13964,"offHand":11904,"ranged":13938},"ench":{"head":"Healing and Spell Damage +8","neck":"+6 Spell Power","chest":"All Stats +3","wrist":"Healing Spells +16, Damage Spells +6","hands":"Haste +1%","legs":"Healing and Spell Damage +8","feet":"Minor Speed","mainHand":"Revelation"},"sets":[{"name":"Deathmist Raiment","worn":1,"size":8}]},{"key":"wrack_ds","short":"Wrack DS","name":"Wrack DS – Affliction (Wrack), Imp sacrificed","spec":"35/11/5","race":"Undead","talents":"https://www.wowhead.com/forever/talent-calc/warlock/v225500020135201351-0050203001-05_t0/0aabbbbbcccccggijjjkkkkkllnooopppppq1ccccceegggj2bbbbb","dps":900,"err":1.8,"sheet":{"name":"500 SP / 5% hit / 10% crit / Int 148 / Spi 54 / Sta 160 / MP5 0","sp":310,"shadowSp":154,"fireSp":0,"hitPct":2,"critPct":6.92,"critIncludesAll":false,"hastePct":1,"pierce":2,"spellPen":0,"int":83,"spi":30,"sta":95,"mp5":0},"slots":{"head":22267,"neck":19426,"shoulder":19050,"back":272411,"chest":14153,"wrist":18497,"hands":18407,"waist":254087,"legs":13170,"feet":11822,"finger1":12543,"finger2":22433,"trinket1":18467,"trinket2":272438,"mainHand":18372,"offHand":11904,"ranged":13396},"ench":{"head":"Healing and Spell Damage +8","neck":"+6 Spell Power","chest":"All Stats +3","wrist":"Healing Spells +16, Damage Spells +6","hands":"Haste +1%","legs":"Healing and Spell Damage +8","feet":"Minor Speed","mainHand":"Revelation"},"sets":[]}],"items":{"11662":{"name":"Ban'thok Sash","q":"rare","icon":16,"from":"Drop: Ok'thor the Breaker","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Ban'thok Sash\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Waist\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>43 Armor\u003c/span>\u003cbr>\u003cspan>+10 Stamina\u003c/span>\u003cbr>\u003cspan>+10 Intellect\u003c/span>\u003cbr>Durability 30 / 30\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 49\u003cbr>\u003cspan class=\"q2\">Equip: Improves your chance to hit by 1.0%.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>12\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"11822":{"name":"Omnicast Boots","q":"rare","icon":55,"from":"Drop: Golem Lord Argelmach","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Omnicast Boots\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Feet\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>58 Armor\u003c/span>\u003cbr>\u003cspan>+8 Stamina\u003c/span>\u003cbr>\u003cspan>+12 Intellect\u003c/span>\u003cbr>Durability 40 / 40\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 54\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>20\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"11904":{"name":"Spirit of Aquementas","q":"rare","icon":162,"from":"Quest: It's Dangerous to Go Alone","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Spirit of Aquementas\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Held In Off-hand\u003c/td>\u003cth>\u003c/th>\u003c/tr>\u003c/table>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>21\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"12543":{"name":"Songstone of Ironforge","q":"rare","icon":82,"from":"Quest: The Princess's Surprise","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Songstone of Ironforge\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Finger\u003c/td>\u003cth>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>+7 Intellect\u003c/span>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>18\u003c/span>.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Your spells pierce 2 Magical Resistance.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"13170":{"name":"Skyshroud Leggings","q":"rare","icon":124,"from":"Drop: Highlord Omokk","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Skyshroud Leggings\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Legs\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>75 Armor\u003c/span>\u003cbr>\u003cspan>+11 Stamina\u003c/span>\u003cbr>\u003cspan>+12 Intellect\u003c/span>\u003cbr>Durability 65 / 65\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 55\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>30\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"13253":{"name":"Hands of Power","q":"rare","icon":316,"from":"Drop: Quartermaster Zigris","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Hands of Power\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Hands\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>53 Armor\u003c/span>\u003cbr>\u003cspan>+9 Intellect\u003c/span>\u003cbr>\u003cspan>+8 Spirit\u003c/span>\u003cbr>Durability 30 / 30\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 55\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>23\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"13396":{"name":"Skul's Ghastly Touch","q":"rare","icon":163,"from":"Drop: Skul","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Skul's Ghastly Touch\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Ranged\u003c/td>\u003cth>\u003cspan class=\"q1\">Wand\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003ctable class=\"w\">\u003ctr> \u003ctd>\u003cspan>75 - 140 Shadow Damage\u003c/span>\u003c/td> \u003cth>Speed 1.80\u003c/th> \u003c/tr>\u003c/table>(59.72 damage per second)\u003cbr>+3 Shadow Resistance\u003cbr>Durability 65 / 65\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 55\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage done by Shadow spells and effects by up to 14.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"13938":{"name":"Bonecreeper Stylus","q":"rare","icon":330,"from":"Drop: Darkmaster Gandling","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Bonecreeper Stylus\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Ranged\u003c/td>\u003cth>\u003cspan class=\"q1\">Wand\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003ctable class=\"w\">\u003ctr> \u003ctd>\u003cspan>83 - 155 Arcane Damage\u003c/span>\u003c/td> \u003cth>Speed 1.90\u003c/th> \u003c/tr>\u003c/table>(62.63 damage per second)\u003cbr>\u003cspan>+5 Intellect\u003c/span>\u003cbr>Durability 65 / 65\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 57\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>11\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"13964":{"name":"Witchblade","q":"rare","icon":332,"from":"Drop: Darkmaster Gandling","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Witchblade\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Main Hand\u003c/td>\u003cth>\u003cspan class=\"q1\">Dagger\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003ctable class=\"w\">\u003ctr> \u003ctd>\u003cspan>30 - 57 Damage\u003c/span>\u003c/td> \u003cth>Speed 1.60\u003c/th> \u003c/tr>\u003c/table>(27.19 damage per second)\u003cbr>\u003cspan>+8 Intellect\u003c/span>\u003cbr>Durability 65 / 65\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 57\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>72\u003c/span>.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Your spells pierce 4 Magical Resistance.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"14153":{"name":"Robe of the Void","q":"epic","icon":340,"from":"Crafted","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q4\">Robe of the Void\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Chest\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>96 Armor\u003c/span>\u003cbr>\u003cspan>+10 Stamina\u003c/span>\u003cbr>\u003cspan>+9 Intellect\u003c/span>\u003cbr>Durability 100 / 100\u003cdiv>Classes: Warlock\u003c/div>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 57\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>46\u003c/span>.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Use: Heal your pet for 450 to 750. (10 Min Cooldown)\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"18372":{"name":"Blade of the New Moon","q":"rare","icon":326,"from":"Drop: Immol'thar","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Blade of the New Moon\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Main Hand\u003c/td>\u003cth>\u003cspan class=\"q1\">Dagger\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003ctable class=\"w\">\u003ctr> \u003ctd>\u003cspan>26 - 50 Damage\u003c/span>\u003c/td> \u003cth>Speed 1.40\u003c/th> \u003c/tr>\u003c/table>(27.14 damage per second)\u003cbr>\u003cspan>+15 Stamina\u003c/span>\u003cbr>Durability 65 / 65\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 57\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage done by Shadow spells and effects by up to 88.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"18407":{"name":"Felcloth Gloves","q":"rare","icon":140,"from":"Crafted","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Felcloth Gloves\u003c/b>\u003cbr>Binds when equipped\u003ctable class=\"w\">\u003ctr>\u003ctd>Hands\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>55 Armor\u003c/span>\u003cbr>\u003cspan>+9 Stamina\u003c/span>\u003cbr>Durability 30 / 30\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 57\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage done by Shadow spells and effects by up to 33.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"18467":{"name":"Royal Seal of Eldre'Thalas","q":"rare","icon":389,"from":"Quest: Harnessing Shadows","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Royal Seal of Eldre'Thalas\u003c/b>\u003cbr>Binds when picked up\u003cbr>Unique\u003ctable class=\"w\">\u003ctr>\u003ctd>Trinket\u003c/td>\u003cth>\u003c/th>\u003c/tr>\u003c/table>+15 Nature Resistance\u003cdiv>Classes: Warlock\u003c/div>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>\u003cspan class=\"q2\">Equip: Increases spell damage and healing by up to 18. Grants an additional 18 spell damage against Demons.\u003c/span>\u003cbr>\u003cspan class=\"q\">&quot;Blessed by the Shen'dralar Ancients.&quot;\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"18497":{"name":"Sublime Wristguards","q":"rare","icon":242,"from":"Drop","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Sublime Wristguards\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Wrist\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>37 Armor\u003c/span>\u003cbr>\u003cspan>+6 Stamina\u003c/span>\u003cbr>\u003cspan>+10 Intellect\u003c/span>\u003cbr>\u003cspan>+6 Spirit\u003c/span>\u003cbr>Durability 30 / 30\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 55\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>12\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"19050":{"name":"Mantle of the Timbermaw","q":"rare","icon":374,"from":"Crafted","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Mantle of the Timbermaw\u003c/b>\u003cbr>Binds when equipped\u003ctable class=\"w\">\u003ctr>\u003ctd>Shoulder\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>65 Armor\u003c/span>\u003cbr>\u003cspan>+13 Intellect\u003c/span>\u003cbr>Durability 50 / 50\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 56\u003cbr>\u003cspan class=\"q2\">Equip: Improves your chance to get a critical strike by 1.0%.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>17\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"19426":{"name":"Orb of the Darkmoon","q":"epic","icon":416,"from":"Quest: 1200 Tickets - Orb of the Darkmoon","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q4\">Orb of the Darkmoon\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Neck\u003c/td>\u003cth>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>+11 Stamina\u003c/span>\u003cbr>\u003cspan>+8 Spirit\u003c/span>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 60\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>22\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"22077":{"name":"Deathmist Wraps","q":"epic","icon":287,"from":"Quest","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q4\">Deathmist Wraps\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Hands\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>54 Armor\u003c/span>\u003cbr>\u003cspan>+16 Stamina\u003c/span>\u003cbr>\u003cspan>+13 Intellect\u003c/span>\u003cbr>Durability 35 / 35\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>\u003cspan class=\"q2\">Equip: Improves your chance to hit by 1.0%.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>13\u003c/span>.\u003c/span>\u003cbr>\u003cbr>\u003cspan class=\"q\">Deathmist Raiment (0/8)\u003c/span>\u003cdiv class=\"q0 indent\">\u003cspan>Deathmist Belt\u003c/span>\u003cbr>\u003cspan>Deathmist Bracers\u003c/span>\u003cbr>\u003cspan>Deathmist Leggings\u003c/span>\u003cbr>\u003cspan>Deathmist Mantle\u003c/span>\u003cbr>\u003cspan>Deathmist Mask\u003c/span>\u003cbr>\u003cspan>Deathmist Robe\u003c/span>\u003cbr>\u003cspan>Deathmist Sandals\u003c/span>\u003cbr>\u003cspan>Deathmist Wraps\u003c/span>\u003c/div>\u003cbr>\u003cspan class=\"q0\">\u003cspan>(2) Set: Restores 8 mana per 5 sec.\u003c/span>\u003cbr>\u003cspan>(3) Set: Your spellcasts have a 5% chance to heal you for 270 to 330.\u003c/span>\u003cbr>\u003cspan>(4) Set: When struck in combat has a 2% chance of causing the attacker to flee in terror for 2 sec. Can only occur once every 60 sec.\u003c/span>\u003cbr>\u003cspan>(5) Set: Increases damage and healing done by magical spells and effects by up to 12.\u003c/span>\u003cbr>\u003cspan>(6) Set: +8 All Resistances.\u003c/span>\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"22267":{"name":"Spellweaver's Turban","q":"rare","icon":469,"from":"Drop: General Drakkisath","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Spellweaver's Turban\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Head\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>73 Armor\u003c/span>\u003cbr>\u003cspan>+13 Spirit\u003c/span>\u003cbr>Durability 50 / 50\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 60\u003cbr>\u003cspan class=\"q2\">Equip: Improves your chance to hit by 1.0%.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>33\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"22433":{"name":"Don Mauricio's Band of Domination","q":"rare","icon":318,"from":"Drop: Darkmaster Gandling","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Don Mauricio's Band of Domination\u003c/b>\u003cbr>Binds when picked up\u003cbr>Unique-Equipped\u003ctable class=\"w\">\u003ctr>\u003ctd>Finger\u003c/td>\u003cth>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>+10 Stamina\u003c/span>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 58\u003cbr>\u003cspan class=\"q2\">Equip: Improves your chance to get a critical strike by 1.0%.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>11\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"254087":{"name":"Black Waistcord","q":"rare","icon":78,"from":"Crafted","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Black Waistcord\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Waist\u003c/td>\u003cth>\u003cspan class=\"q1\">Cloth\u003c/span>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>42 Armor\u003c/span>\u003cbr>\u003cspan>+12 Stamina\u003c/span>\u003cbr>\u003cspan>+9 Intellect\u003c/span>\u003cbr>Durability 30 / 30\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 47\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage done by Shadow spells and effects by up to 19.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"272407":{"name":"Blessed Band of Light","q":"rare","icon":561,"from":"Drop: Pix Xizzix","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Blessed Band of Light\u003c/b>\u003cbr>Binds when picked up\u003cbr>Unique\u003ctable class=\"w\">\u003ctr>\u003ctd>Finger\u003c/td>\u003cth>\u003c/th>\u003c/tr>\u003c/table>\u003cspan>+10 Stamina\u003c/span>\u003cbr>\u003cspan>+8 Spirit\u003c/span>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 60\u003cbr>\u003cspan class=\"q2\">Equip: Improves your chance to hit by 1.0%.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Increases healing done by up to \u003cspan>31\u003c/span> and damage done by up to \u003cspan>10\u003c/span> for all magical spells and effects.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"272411":{"name":"Arcanoweave Cloak","q":"rare","icon":191,"from":"Drop: Pix Xizzix","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Arcanoweave Cloak\u003c/b>\u003cbr>Binds when picked up\u003ctable class=\"w\">\u003ctr>\u003ctd>Back\u003c/td>\u003c/tr>\u003c/table>\u003cspan>46 Armor\u003c/span>\u003cbr>\u003cspan>+8 Intellect\u003c/span>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 60\u003cbr>\u003cspan class=\"q2\">Equip: Improves your chance to hit by 1.0%.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>16\u003c/span>.\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"},"272438":{"name":"Weakness Analyzer","q":"rare","icon":562,"from":"Drop: Pix Xizzix","tip":"\u003ctable>\u003ctr>\u003ctd>\u003cb class=\"q3\">Weakness Analyzer\u003c/b>\u003cbr>Binds when picked up\u003cbr>Unique-Equipped: Undermine Trinkets (1)\u003ctable class=\"w\">\u003ctr>\u003ctd>Trinket\u003c/td>\u003cth>\u003c/th>\u003c/tr>\u003c/table>\u003c/td>\u003c/tr>\u003c/table>\u003ctable>\u003ctr>\u003ctd>Requires Level 60\u003cbr>\u003cspan class=\"q2\">Equip: Increases damage and healing done by magical spells and effects by up to \u003cspan>18\u003c/span>.\u003c/span>\u003cbr>\u003cspan class=\"q2\">Use: Increases your critical strike chance with all spells and attacks by 5% for 20 sec or until you deal a non-periodic critical effect. (6 Min Cooldown)\u003c/span>\u003c/td>\u003c/tr>\u003c/table>"}},"enchants":{"Healing and Spell Damage +8":{"id":2544,"name":"Healing and Spell Damage +8","text":"Permanently adds +8 to your Healing and Damage from spells to a leg or head slot item. Does not stack with other enchantments for the selected equipment slot."},"+6 Spell Power":{"id":8218,"name":"+6 Spell Power","text":"Permanently enchant a necklace to increase spell damage and healing by up to 6."},"All Stats +3":{"id":928,"name":"All Stats +3","text":"Permanently enchant a piece of chest armor to grant +3 to all stats."},"Healing Spells +16, Damage Spells +6":{"id":8209,"name":"Healing Spells +16, Damage Spells +6","text":"Permanently enchant bracers to increase healing by up to 16 and damage by up to 6."},"Haste +1%":{"id":931,"name":"Haste +1%","text":"Permanently enchant gloves to grant a +1% attack and casting speed bonus."},"Minor Speed":{"name":"Minor Speed","text":"Run speed increased slightly (no effect in the sim)."},"Revelation":{"id":8217,"name":"Revelation","text":"Permanently enchant a Melee Weapon to have a chance to trigger Revelation when a non-periodic spell fails to critically strike. Revelation grants 100% increased critical strike chance to the next non-periodic spell cast. Revelation's chance to trigger is diminished as your critical strike chance increases."}},"reviewTab":false}</script>
+<script>
+(function () {
+  var D = JSON.parse(document.getElementById('data').textContent), B = D.builds, IT = D.items;
+  var LEFT = [['head', 'Head'], ['neck', 'Neck'], ['shoulder', 'Shoulder'], ['back', 'Back'], ['chest', 'Chest'], ['shirt', 'Shirt'], ['tabard', 'Tabard'], ['wrist', 'Wrist']];
+  var RIGHT = [['hands', 'Hands'], ['waist', 'Waist'], ['legs', 'Legs'], ['feet', 'Feet'], ['finger1', 'Finger'], ['finger2', 'Finger'], ['trinket1', 'Trinket'], ['trinket2', 'Trinket']];
+  var WEAP = [['mainHand', 'Main Hand'], ['offHand', 'Off Hand'], ['ranged', 'Wand']];
+  var QN = { poor: 0, common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5 };
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function slug(b) { return b.short.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
+  function icoStyle(it, px) {
+    if (!it || it.icon == null) return '';
+    var c = D.icons.cols, r = D.icons.rows;
+    return 'background-image:url(icons.jpg);background-size:' + (c * px) + 'px ' + (r * px) + 'px;background-position:-' + (it.icon % c) * px + 'px -' + Math.floor(it.icon / c) * px + 'px';
+  }
+  function slotHtml(b, s, cls) {
+    var id = b.slots[s[0]], it = id && IT[id], en = b.ench && b.ench[s[0]];
+    if (!it) return '<div class="slot none ' + (cls || '') + '"><span class="ico empty" aria-hidden="true"></span><span class="txt"><span class="lbl">' + s[1] + '</span></span></div>';
+    var q = QN[it.q] != null ? QN[it.q] : 1;
+    return '<a class="slot" href="https://www.wowhead.com/forever/item=' + id + '" target="_blank" rel="noopener" data-id="' + id + '" data-b="' + b.key + '" data-s="' + s[0] + '">' +
+      '<span class="ico q' + q + '" style="' + icoStyle(it, 46) + '" aria-hidden="true"></span>' +
+      '<span class="txt"><span class="lbl">' + s[1] + '</span><span class="nm q' + q + '">' + esc(it.name) + '</span>' + (en ? '<span class="ench">' + esc(en) + '</span>' : '') + '<span class="src">' + esc(it.from || 'Source not listed') + '</span></span></a>';
+  }
+  function fmt(n, d) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  function statsHtml(b) {
+    var s = b.sheet, rows = [['Spell Power', fmt(s.sp)]];
+    if (s.shadowSp) rows.push(['Shadow Spell Power', '+' + fmt(s.shadowSp)]);
+    if (s.fireSp) rows.push(['Fire Spell Power', '+' + fmt(s.fireSp)]);
+    rows.push(['Hit', s.hitPct + '%'], ['Crit', fmt(s.critPct, 2) + '%']);
+    if (s.hastePct) rows.push(['Haste', s.hastePct + '%']);
+    rows.push(['Intellect', fmt(s.int)], ['Spirit', fmt(s.spi)], ['Stamina', fmt(s.sta)]);
+    if (s.pierce) rows.push(['Spell Pierce', fmt(s.pierce)]);
+    if (s.mp5) rows.push(['Mana per 5 sec', fmt(s.mp5)]);
+    return '<dl class="stats"><h3>From these items and enchants</h3>' + rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl>';
+  }
+  function buildView(b) {
+    var sets = b.sets.filter(function (s) { return s.worn >= 2; });
+    return '<section class="sheet" aria-label="' + esc(b.short) + ' gear"><div class="doll">' +
+      '<div class="col left">' + LEFT.map(function (s) { return slotHtml(b, s); }).join('') + '</div>' +
+      '<div class="mid"><h2>' + esc(b.short) + '</h2>' +
+        '<div class="who"><b>' + esc(b.race) + '</b> · talents <b>' + esc(b.spec) + '</b></div>' +
+        '<div class="dps"><span class="n">' + fmt(b.dps, 1) + '</span><span class="u">Sim DPS</span><span class="pm">± ' + b.err + ' over 1,000 boss fights</span></div>' +
+        statsHtml(b) +
+        (sets.length ? '<div class="setline">' + sets.map(function (s) { return esc(s.name) + ' ' + s.worn + '/' + s.size; }).join(' · ') + '</div>' : '') +
+        '<div class="links"><a class="btn" href="' + esc(b.talents) + '" target="_blank" rel="noopener">Talents on Wowhead</a></div>' +
+      '</div>' +
+      '<div class="col right">' + RIGHT.map(function (s) { return slotHtml(b, s); }).join('') + '</div>' +
+      '</div><div class="weap">' + WEAP.map(function (s) { return slotHtml(b, s); }).join('') + '</div></section>';
+  }
+  // Rings and trinkets have no order: in the table each build's pair is listed the same way (the item more builds wear first),
+  // so the same two rings in swapped slots do not count as a difference.
+  function pairsInOrder() {
+    var cnt = {}, out = {};
+    B.forEach(function (b) { ['finger1', 'finger2', 'trinket1', 'trinket2'].forEach(function (k) { var id = b.slots[k]; if (id) cnt[id] = (cnt[id] || 0) + 1; }); });
+    B.forEach(function (b) {
+      var s = {}; Object.keys(b.slots).forEach(function (k) { s[k] = b.slots[k]; });
+      [['finger1', 'finger2'], ['trinket1', 'trinket2']].forEach(function (p) {
+        var x = [s[p[0]], s[p[1]]].filter(Boolean).sort(function (u, v) { return (cnt[v] || 0) - (cnt[u] || 0) || u - v; });
+        s[p[0]] = x[0]; s[p[1]] = x[1];
+      });
+      out[b.key] = s;
+    });
+    return out;
+  }
+  function allView() {
+    var rows = LEFT.concat(RIGHT, WEAP).filter(function (s) { return B.some(function (b) { return b.slots[s[0]]; }); }), P = pairsInOrder();
+    return '<div class="cmpwrap"><table class="cmp"><thead><tr><th scope="col">Slot</th>' + B.map(function (b) { return '<th scope="col">' + esc(b.short) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      '<tr class="dpsrow"><th scope="row">Sim DPS</th>' + B.map(function (b) { return '<td>' + fmt(b.dps, 1) + '</td>'; }).join('') + '</tr>' +
+      rows.map(function (s) {
+        // the most common item in this slot; a build with another one is an outlier (none when no item repeats)
+        var n = {}, top = 0; B.forEach(function (b) { var id = P[b.key][s[0]] || 0; n[id] = (n[id] || 0) + 1; if (n[id] > top) top = n[id]; });
+        var same = top === B.length;
+        var en = B[0].ench && B[0].ench[s[0]], oneEn = en && B.every(function (b) { return b.ench && b.ench[s[0]] === en; });
+        return '<tr' + (same ? ' class="same"' : '') + '><th scope="row">' + s[1] + (oneEn ? '<span class="ench">' + esc(en) + '</span>' : '') + '</th>' + B.map(function (b) {
+          var id = P[b.key][s[0]], it = id && IT[id], odd = !same && top > 1 && n[id || 0] < top;
+          if (!it) return '<td' + (odd ? ' class="odd"' : '') + '></td>';
+          var q = QN[it.q] != null ? QN[it.q] : 1;
+          return '<td' + (odd ? ' class="odd" title="Differs from what most builds wear here"' : '') + '><a class="cell slot" href="https://www.wowhead.com/forever/item=' + id + '" target="_blank" rel="noopener" data-id="' + id + '" data-b="' + b.key + '" data-s="' + s[0] + '"><span class="ico q' + q + '" style="' + icoStyle(it, 30) + '" aria-hidden="true"></span><span class="nm q' + q + '">' + esc(it.name) + '</span></a></td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<div class="legend"><span><i class="same" aria-hidden="true"></i>Same item for every build</span><span><i class="odd" aria-hidden="true"></i>Differs from what most builds wear in that slot</span></div>';
+  }
+  // ---- Enchants review (round 213): phase per enchant, the owner's choice saved in review/enchants ----
+  var RV = { phases: {}, ref: null, canWrite: false, status: D.reviewTab ? 'Loading the saved review…' : '', err: false, saving: false, timer: null };
+  var PH = [[1, 'P1'], [2, 'P2'], [3, 'P3'], [4, 'P4'], [5, 'P5'], [6, 'P6'], [9, 'Not in game']];
+  var SLOTN = { head: 'Head', neck: 'Neck', shoulder: 'Shoulder', back: 'Back', chest: 'Chest', wrist: 'Wrist', hands: 'Hands', waist: 'Waist', legs: 'Legs', feet: 'Feet', mainHand: 'Weapon', offHand: 'Off hand' };
+  function rvPhase(e) { return RV.phases[e.id] != null ? RV.phases[e.id] : e.guess; }
+  function reviewView() {
+    var R = D.review, done = R.filter(function (e) { return RV.phases[e.id] != null; }).length, p1 = R.filter(function (e) { return rvPhase(e) === 1; }).length, by = {};
+    R.forEach(function (e) { (by[e.slots[0]] = by[e.slots[0]] || []).push(e); });
+    return '<section class="rv" aria-label="Enchants review"><div class="rvtop"><span><b>' + R.length + '</b> enchants · <b>' + p1 + '</b> in Phase 1 · <b>' + done + '</b> reviewed (the rest are guesses, dashed)</span>' +
+      '<span class="rvst' + (RV.err ? ' err' : '') + '" role="status">' + esc(RV.status) + '</span></div>' +
+      Object.keys(by).map(function (s) {
+        return '<div class="rvslot"><h3>' + esc(SLOTN[s] || s) + '</h3>' + by[s].map(function (e) {
+          var cur = rvPhase(e), reviewed = RV.phases[e.id] != null;
+          return '<div class="rvrow' + (e.used ? ' on' : '') + '"><div class="rvn">' + esc(e.name) + (e.used ? '<span class="tag">on the lists</span>' : '') + '</div>' +
+            '<div class="rvbtns" role="group" aria-label="Phase of ' + esc(e.name) + '">' + PH.map(function (p) {
+              return '<button type="button" data-rv="' + e.id + '" data-p="' + p[0] + '" aria-pressed="' + (cur === p[0]) + '"' + (!reviewed && cur === p[0] ? ' class="guess"' : '') + (RV.canWrite ? '' : ' disabled') + '>' + p[1] + '</button>';
+            }).join('') + '</div>' +
+            '<div class="rvt">' + esc([e.slots.map(function (x) { return SLOTN[x] || x; }).join(', '), e.twoHand ? 'two-handed weapons' : '', e.from, e.text].filter(Boolean).join(' · ')) +
+            (reviewed ? '' : '<br>Guess: ' + esc(e.why)) + '</div></div>';
+        }).join('') + '</div>';
+      }).join('') + '</section>';
+  }
+  function rvSave() {
+    if (!RV.ref || !RV.canWrite) return;
+    clearTimeout(RV.timer); RV.status = 'Saving…'; RV.err = false; rvStatus();
+    RV.timer = setTimeout(function () {
+      RV.saving = true;
+      RV.ref.set({ phases: RV.phases, saved: new Date().toISOString() }).then(function () { RV.saving = false; RV.status = 'Saved'; rvStatus(); },
+        function (e) { RV.saving = false; RV.status = 'Not saved (' + ((e && e.code) || 'error') + '): it is tried again with your next change.'; RV.err = true; rvStatus(); });
+    }, 600);
+  }
+  function rvStatus() { var s = document.querySelector('.rvst'); if (s) { s.textContent = RV.status; s.className = 'rvst' + (RV.err ? ' err' : ''); } }
+  document.addEventListener('click', function (e) {
+    var bt = e.target.closest && e.target.closest('[data-rv]'); if (!bt || !RV.canWrite) return;
+    var id = +bt.getAttribute('data-rv'), p = +bt.getAttribute('data-p'), en = D.review.filter(function (x) { return x.id === id; })[0];
+    if (RV.phases[id] === p) delete RV.phases[id]; else RV.phases[id] = p;   // a second click on the chosen phase: back to the guess
+    var y = window.scrollY; render(); window.scrollTo(0, y); rvSave();
+  });
+  if (D.reviewTab) {
+    if (!(window.claude && window.claude.use)) RV.status = 'Saving works on claude.ai only.';
+    else Promise.all([window.claude.use('db'), window.claude.use('user')]).then(function (r) {
+      var db = r[0], user = r[1];
+      if (!db) { RV.status = 'Saving is not available here.'; rvStatus(); return; }
+      RV.canWrite = user ? user.isOwner() : false;
+      var slow = setTimeout(function () { RV.status = 'The saved review can\'t be reached yet.'; RV.err = true; rvStatus(); }, 10000);
+      RV.ref = db.doc('review/enchants');
+      RV.ref.onSnapshot(function (s) {
+        clearTimeout(slow);
+        if (RV.saving || RV.timer && RV.status === 'Saving…') return;
+        var d = s.exists ? s.data() : null; RV.phases = Object.assign({}, (d && d.phases) || {});
+        RV.status = RV.canWrite ? 'Click a phase to set it; click it again to go back to the guess.' : 'View only: the owner reviews.'; RV.err = false;
+        if (cur === B.length + 1) { var y = window.scrollY; render(); window.scrollTo(0, y); }
+      }, function (e) { clearTimeout(slow); RV.status = 'The saved review could not be loaded (' + e.code + ').'; RV.err = true; rvStatus(); });
+    });
+  }
+  var cur = 0;   // index into B; B.length = all builds, B.length + 1 = Enchants
+  function render() {
+    $('tabs').innerHTML = '<button class="tab" role="tab" type="button" data-i="' + B.length + '" aria-selected="' + (cur === B.length) + '">All builds</button>' +
+      B.map(function (b, i) { return '<button class="tab" role="tab" type="button" data-i="' + i + '" aria-selected="' + (i === cur) + '">' + esc(b.short) + '</button>'; }).join('') +
+      (D.reviewTab ? '<button class="tab" role="tab" type="button" data-i="' + (B.length + 1) + '" aria-selected="' + (cur === B.length + 1) + '">Enchants</button>' : '');
+    $('view').innerHTML = cur < B.length ? buildView(B[cur]) : cur === B.length + 1 ? reviewView() : allView();
+    hide();
+  }
+  function fromHash() {
+    var h = (location.hash || '').slice(1), i = h === 'all-builds' ? B.length : h === 'enchants' && D.reviewTab ? B.length + 1 : B.findIndex(function (b) { return slug(b) === h; });
+    cur = i >= 0 ? i : B.length; render();   // no link to a build: All builds
+  }
+  $('tabs').addEventListener('click', function (e) {
+    var t = e.target.closest('[data-i]'); if (!t) return;
+    cur = +t.getAttribute('data-i'); render();
+    var hh = cur < B.length ? slug(B[cur]) : cur === B.length + 1 ? 'enchants' : 'all-builds';
+    try { history.replaceState(null, '', '#' + hh); } catch (x) { location.hash = hh; }
+  });
+  window.addEventListener('hashchange', fromHash);
+
+  // tooltip, as the game draws it: the set line counts this build's pieces
+  var tip = $('tip'), tipFor = null;
+  function show(a, x, y) {
+    var it = IT[a.getAttribute('data-id')], b = B.filter(function (z) { return z.key === a.getAttribute('data-b'); })[0];
+    if (!it || !it.tip) return hide();
+    var en = b && b.ench && b.ench[a.getAttribute('data-s')], html = it.tip;
+    if (en) { var line = '<span class="q2">' + esc(en) + '</span>'; html = /Durability/.test(html) ? html.replace(/Durability/, line + '<br>Durability') : html.replace('</td></tr></table>', '<br>' + line + '</td></tr></table>'); }
+    tip.innerHTML = '<div class="tipg">' + html + '</div>' + (it.from ? '<div class="tipx">' + esc(it.from) + '</div>' : '');
+    var worn = {}; Object.keys(b.slots).forEach(function (k) { var w = IT[b.slots[k]]; if (w) worn[w.name] = 1; });
+    Array.prototype.forEach.call(tip.querySelectorAll('.tipg span.q'), function (sp) {
+      var m = /^(.*) \((\d+)\/(\d+)\)$/.exec(sp.textContent), list = sp.nextElementSibling;
+      if (!m || !list || !list.classList.contains('indent')) return;
+      var n = 0; Array.prototype.forEach.call(list.querySelectorAll('span'), function (p) { if (worn[p.textContent.trim()]) { p.className = 'q1'; n++; } });
+      sp.textContent = m[1] + ' (' + n + '/' + m[3] + ')';
+      Array.prototype.forEach.call(tip.querySelectorAll('.tipg span'), function (s) { var bm = /^\((\d)\) Set ?:/.exec(s.textContent); if (bm) s.className = +bm[1] <= n ? 'q2' : 'q0'; });
+    });
+    tip.hidden = false; tipFor = a; place(x, y, a);
+  }
+  function place(x, y, a) {
+    var w = tip.offsetWidth, h = tip.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+    if (x == null) { var r = a.getBoundingClientRect(); x = r.right; y = r.top; }
+    var left = x + 16, top = y + 12;
+    if (left + w > vw - 8) left = Math.max(8, x - w - 16);
+    if (top + h > vh - 8) top = Math.max(8, vh - h - 8);
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  function hide() { tip.hidden = true; tipFor = null; }
+  // Mouse: the tooltip follows the pointer. Touch (pen too): the first tap on an item shows its tooltip, a second tap on
+  // the same item opens Wowhead; a tap anywhere else closes it. A phone also sends mouse events for a tap, so the kind of
+  // pointer is taken from pointerdown and mouse movement counts only for a real mouse.
+  var touchTap = false, armed = null;
+  var itemAt = function (e) { return e.target && e.target.closest ? e.target.closest('a[data-id]') : null; };
+  document.addEventListener('pointerdown', function (e) { touchTap = e.pointerType !== 'mouse'; }, true);
+  document.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var a = itemAt(e);
+    if (!a) { if (tipFor) hide(); return; }
+    if (a !== tipFor) show(a, e.clientX, e.clientY); else place(e.clientX, e.clientY, a);
+  });
+  document.addEventListener('focusin', function (e) { if (touchTap) return; var a = itemAt(e); if (a) show(a); else hide(); });
+  document.addEventListener('focusout', function () { if (!touchTap) hide(); });
+  document.addEventListener('click', function (e) {
+    var a = itemAt(e);
+    if (!touchTap) return;                                  // mouse / keyboard: links work as links
+    if (!a) { hide(); armed = null; return; }
+    if (armed === a && tipFor === a) { armed = null; return; }   // second tap: open Wowhead
+    e.preventDefault(); armed = a; show(a);
+  });
+  window.addEventListener('scroll', function () { if (touchTap && tipFor) { hide(); armed = null; } }, { passive: true });
+
+  $('notes').innerHTML = '<p>Sim DPS: a 3-minute single-target boss fight (± 10%), 1,000 fights, an ideal Phase 1 raid (the buffs of a full raid; flask, elixirs, Nightfin Soup, Wizard Oil, Major Spellblasting Potion, Demonic Rune), these items with the Phase 1 enchants in green (the wrist enchant is a pick). Trinket effects (Royal Seal of Eldre\'Thalas, Weakness Analyzer) count in the DPS but not in the stats above. Race: the best one for the build.</p>' +
+    '<p>Item stats and tooltips from the Wowhead Forever database. Simulated with <a href="https://xnwlk.github.io/WarlockSIM/" target="_blank" rel="noopener">Xn\'s Forever Warlock Sim</a>, where every list loads into the gear builder.</p>';
+  fromHash();
+})();
+</script>
+
+</body>
+</html>
