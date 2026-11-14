@@ -245,7 +245,7 @@ table.cmp tbody th .ench { display: block; font: 500 11.5px/1.25 var(--game); le
         var n = {}, top = 0; B.forEach(function (b) { var id = P[b.key][s[0]] || 0; n[id] = (n[id] || 0) + 1; if (n[id] > top) top = n[id]; });
         var same = top === B.length;
         var en = B[0].ench && B[0].ench[s[0]], oneEn = en && B.every(function (b) { return b.ench && b.ench[s[0]] === en; });
-        return '<tr' + (same ? ' class="same"' : '') + '><th scope="row">' + s[1] + (oneEn ? '<span class="ench">' + esc(en) + '</span>' : '') + '</th>' + B.map(function (b) {
+        return '<tr' + (same ? ' class="same"' : '') + '><th scope="row">' + s[1] + (oneEn ? '<span class="ench">' + esc(en) + '</span>' : B.some(function (b) { return b.ench && b.ench[s[0]]; }) ? '<span class="ench">Depends</span>' : '') + '</th>' + B.map(function (b) {
           var id = P[b.key][s[0]], it = id && IT[id], odd = !same && top > 1 && n[id || 0] < top;
           if (!it) return '<td' + (odd ? ' class="odd"' : '') + '></td>';
           var q = QN[it.q] != null ? QN[it.q] : 1;
