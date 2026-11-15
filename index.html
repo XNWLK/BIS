@@ -32,6 +32,7 @@
   --game: "Arial Narrow", Arial, "Helvetica Neue", sans-serif;
 }
 * { box-sizing: border-box; }
+html { scrollbar-gutter: stable; }   /* round 216 (user: "the window still shifts when i jump … to all builds"): the scrollbar of a taller tab no longer moves the page */
 body { background: var(--bg); color: var(--text); font: 14px/1.45 var(--body);
   background-image: radial-gradient(1200px 500px at 50% -10%, #241a2e 0%, transparent 70%); }
 .wrap { max-width: 1060px; margin: 0 auto; padding-block: 28px 40px;
